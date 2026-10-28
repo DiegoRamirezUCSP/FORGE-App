@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Forge",
+    "slug": "forge",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#222222",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "backgroundColor": "#222222"
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
+  }
+}
