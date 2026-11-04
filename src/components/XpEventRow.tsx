@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { relativeDay } from '../domain/dates';
 import { formatNumber } from '../format';
 import { colors, font, radius, spacing } from '../theme';
 import { XpEvent, XpEventKind } from '../types';
@@ -10,16 +11,17 @@ const accent: Record<XpEventKind, string> = {
 };
 
 export function XpEventRow({ event }: { event: XpEvent }) {
+  const when = relativeDay(event.date);
   return (
     <View
       style={styles.row}
       accessible
-      accessibilityLabel={`${event.title}, ${event.when}, más ${event.xp} XP`}
+      accessibilityLabel={`${event.title}, ${when}, más ${event.xp} XP`}
     >
       <View style={[styles.marker, { backgroundColor: accent[event.kind] }]} />
       <View style={styles.text}>
         <Text style={styles.title}>{event.title}</Text>
-        <Text style={styles.when}>{event.when}</Text>
+        <Text style={styles.when}>{when}</Text>
       </View>
       <Text style={styles.xp}>+{formatNumber(event.xp)} XP</Text>
     </View>

@@ -1,34 +1,46 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button } from '../components/Button';
 import { RankBadge } from '../components/RankBadge';
 import { XpBar } from '../components/XpBar';
 import { XpEventRow } from '../components/XpEventRow';
-import { getRank } from '../data/ranks';
-import { mockProgress } from '../data/mock';
 import { formatNumber } from '../format';
+import type { HomeStackParams } from '../navigation/types';
+import { useForge } from '../state/ProgressProvider';
+import { selectProgress } from '../state/selectors';
 import { colors, font, spacing } from '../theme';
 
-export function ProgressScreen() {
-  const p = mockProgress;
-  const rank = getRank(p.rankId);
-  const missing = Math.max(0, p.xpForNextLevel - p.xp);
+type Props = NativeStackScreenProps<HomeStackParams, 'Progress'>;
+
+export function ProgressScreen({ navigation }: Props) {
+  const { state } = useForge();
+  const p = useMemo(() => selectProgress(state), [state]);
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
-        <RankBadge rank={rank} level={p.level} size={150} variant="ring" />
+        <RankBadge rank={p.rank} level={p.level} size={150} variant="ring" />
         <Text style={styles.xp}>
-          {formatNumber(p.xp)} / {formatNumber(p.xpForNextLevel)} XP
+          {formatNumber(p.xp)} / {formatNumber(p.nextLevelXp)} XP
         </Text>
       </View>
 
-      <XpBar value={p.xp / p.xpForNextLevel} />
+      <XpBar value={p.ratio} />
       <Text style={styles.missing}>
-        Faltan {formatNumber(missing)} XP para Nivel {p.level + 1}
+        Faltan {formatNumber(p.missing)} XP para Nivel {p.level + 1}
       </Text>
+
+      <View style={styles.action}>
+        <Button label="Ver todos los rangos" variant="ghost" onPress={() => navigation.navigate('RankDetails')} />
+      </View>
 
       <Text style={styles.section}>XP reciente</Text>
       <View style={styles.list}>
-        {p.recentXp.map((e) => (
+        {state.xpEvents.length === 0 && (
+          <Text style={styles.empty}>Aún no hay XP. Completa tu primer entrenamiento para empezar.</Text>
+        )}
+        {state.xpEvents.slice(0, 6).map((e) => (
           <XpEventRow key={e.id} event={e} />
         ))}
       </View>
@@ -41,12 +53,9 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, paddingBottom: spacing.xl },
   hero: { alignItems: 'center', marginVertical: spacing.lg, gap: spacing.md },
   xp: { ...font.body, color: colors.textMuted },
-  missing: {
-    ...font.small,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
+  missing: { ...font.small, color: colors.textMuted, textAlign: 'center', marginTop: spacing.sm },
+  action: { marginTop: spacing.lg },
   section: { ...font.heading, color: colors.text, marginTop: spacing.xl, marginBottom: spacing.md },
   list: { gap: spacing.sm + 4 },
+  empty: { ...font.body, color: colors.textMuted },
 });

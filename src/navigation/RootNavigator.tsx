@@ -2,9 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ActiveSessionScreen } from '../screens/ActiveSessionScreen';
+import { HistoryScreen } from '../screens/HistoryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
-import { PlaceholderScreen } from '../screens/PlaceholderScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { ProgressScreen } from '../screens/ProgressScreen';
+import { RankDetailsScreen } from '../screens/RankDetailsScreen';
+import { SessionSummaryScreen } from '../screens/SessionSummaryScreen';
+import { TrainingMenuScreen } from '../screens/TrainingMenuScreen';
+import { WorkoutSetupScreen } from '../screens/WorkoutSetupScreen';
 import { colors } from '../theme';
 import type { HomeStackParams, TabParams } from './types';
 
@@ -23,7 +29,7 @@ const navTheme: Theme = {
   },
 };
 
-// Progreso vive dentro de la pestaña Inicio para conservar la barra inferior.
+// Todo el flujo de entrenamiento vive dentro de la pestaña Inicio.
 function HomeStackNavigator() {
   return (
     <HomeStack.Navigator
@@ -36,20 +42,22 @@ function HomeStackNavigator() {
     >
       <HomeStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="Progress" component={ProgressScreen} options={{ title: 'Tu Progreso' }} />
+      <HomeStack.Screen name="RankDetails" component={RankDetailsScreen} options={{ title: 'Rangos' }} />
+      <HomeStack.Screen name="TrainingMenu" component={TrainingMenuScreen} options={{ title: 'Entrenamiento' }} />
+      <HomeStack.Screen name="WorkoutSetup" component={WorkoutSetupScreen} options={{ title: 'Configurar entrenamiento' }} />
+      <HomeStack.Screen
+        name="ActiveSession"
+        component={ActiveSessionScreen}
+        options={{ title: 'En sesión', headerBackVisible: false, gestureEnabled: false }}
+      />
+      <HomeStack.Screen
+        name="SessionSummary"
+        component={SessionSummaryScreen}
+        options={{ title: 'Resumen', headerBackVisible: false, gestureEnabled: false }}
+      />
     </HomeStack.Navigator>
   );
 }
-
-const HistoryScreen = () => (
-  <PlaceholderScreen
-    title="Historial"
-    message="Aquí verás tus sesiones. Completa tu primer entrenamiento para empezar."
-  />
-);
-
-const ProfileScreen = () => (
-  <PlaceholderScreen title="Perfil" message="Tus datos y ajustes estarán aquí." />
-);
 
 export function RootNavigator() {
   return (

@@ -1,28 +1,30 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RankBadge } from '../components/RankBadge';
 import { StatChip } from '../components/StatChip';
 import { XpBar } from '../components/XpBar';
-import { getRank } from '../data/ranks';
-import { mockProgress } from '../data/mock';
+import { PLACEMENT_SESSIONS } from '../domain/xp';
 import { formatNumber } from '../format';
 import type { HomeStackParams } from '../navigation/types';
+import { useForge } from '../state/ProgressProvider';
+import { selectProgress } from '../state/selectors';
 import { colors, font, radius, spacing } from '../theme';
 
 type Props = NativeStackScreenProps<HomeStackParams, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
-  const p = mockProgress;
-  const rank = getRank(p.rankId);
+  const { state } = useForge();
+  const p = useMemo(() => selectProgress(state), [state]);
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.logo}>FORGE</Text>
-          <View style={styles.avatar} accessible accessibilityLabel={`Perfil de ${p.name}`}>
-            <Text style={styles.avatarText}>{p.name.charAt(0)}</Text>
+          <View style={styles.avatar} accessible accessibilityLabel={`Perfil de ${state.name}`}>
+            <Text style={styles.avatarText}>{state.name.charAt(0).toUpperCase()}</Text>
           </View>
         </View>
 
@@ -32,31 +34,34 @@ export function HomeScreen({ navigation }: Props) {
           accessibilityLabel="Ver tu progreso"
           style={({ pressed }) => [styles.rankCard, pressed && styles.pressed]}
         >
-          <RankBadge rank={rank} level={p.level} size={76} />
+          <RankBadge rank={p.rank} level={p.level} size={76} />
           <View style={styles.rankInfo}>
             <Text style={styles.muted}>Rango actual</Text>
             <Text style={styles.rankName}>
-              {rank.name} - {rank.subtitle}
+              {p.rank.name} - {p.rank.subtitle}
             </Text>
             <Text style={styles.muted}>
-              {formatNumber(p.xp)} / {formatNumber(p.xpForNextLevel)} XP
+              {formatNumber(p.xp)} / {formatNumber(p.nextLevelXp)} XP
             </Text>
+            {!p.placementDone && (
+              <Text style={styles.placement}>
+                Colocación · sesión {p.placementCount} de {PLACEMENT_SESSIONS}
+              </Text>
+            )}
           </View>
         </Pressable>
 
         <View style={styles.barWrap}>
-          <XpBar value={p.xp / p.xpForNextLevel} />
+          <XpBar value={p.ratio} />
         </View>
 
         <View style={styles.stats}>
-          <StatChip label="Racha" value={`${p.streakDays} días`} />
-          <StatChip label="PRs del mes" value={String(p.prsThisMonth)} />
+          <StatChip label="Racha" value={`${state.streak} ${state.streak === 1 ? 'día' : 'días'}`} />
+          <StatChip label="PRs del mes" value={String(p.prsLast30)} />
         </View>
 
         <Pressable
-          onPress={() =>
-            Alert.alert('Próximamente', 'El registro de sesión llega en la siguiente versión.')
-          }
+          onPress={() => navigation.navigate('TrainingMenu')}
           accessibilityRole="button"
           style={({ pressed }) => [styles.cta, pressed && styles.pressed]}
         >
@@ -100,6 +105,7 @@ const styles = StyleSheet.create({
   rankInfo: { flex: 1, gap: 2 },
   rankName: { ...font.heading, color: colors.text },
   muted: { ...font.small, color: colors.textMuted },
+  placement: { ...font.small, color: colors.amber, fontWeight: '700', marginTop: 2 },
   barWrap: { marginTop: spacing.md },
   stats: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
   cta: {
