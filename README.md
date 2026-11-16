@@ -47,7 +47,7 @@ Si no conecta:
 | Internet inestable | definir `EXPO_OFFLINE=1` y usar `--lan` |
 | Probar en el navegador | `npx expo install react-dom react-native-web @expo/metro-runtime` y `npx expo start --web` |
 
-La versión web sirve para pruebas. Hoy `Alert.alert` no funciona en web, así que algunas confirmaciones no responden ahí (ver ROADMAP).
+La versión web sirve para pruebas: se limita a ancho de teléfono y usa los diálogos del navegador para alertas y confirmaciones.
 
 Revisar tipos:
 
@@ -95,6 +95,7 @@ src/
   screens/              Home, Progress, RankDetails, TrainingMenu, WorkoutSetup,
                         ActiveSession, SessionSummary, History, Profile
   navigation/           pestañas y pila de Inicio
+  ui/                   dialog: alertas y confirmaciones multiplataforma
 ```
 
 ## Notas para desarrollar

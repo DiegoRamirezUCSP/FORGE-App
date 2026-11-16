@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from '../components/Button';
 import { getExercise } from '../data/exercises';
 import {
@@ -13,6 +13,7 @@ import {
 import type { HomeStackParams } from '../navigation/types';
 import { useForge } from '../state/ProgressProvider';
 import { colors, font, radius, spacing } from '../theme';
+import { showAlert, showConfirm } from '../ui/dialog';
 import type { ExerciseLog, Session } from '../types';
 
 type Props = NativeStackScreenProps<HomeStackParams, 'ActiveSession'>;
@@ -61,7 +62,7 @@ export function ActiveSessionScreen({ navigation, route }: Props) {
   const toggle = (ei: number, si: number) => {
     const s = exs[ei].sets[si];
     if (!s.done && !(parseDecimal(s.weight) > 0 && parseDecimal(s.reps) > 0)) {
-      Alert.alert('Faltan datos', 'Ingresa peso y repeticiones para completar la serie.');
+      showAlert('Faltan datos', 'Ingresa peso y repeticiones para completar la serie.');
       return;
     }
     patchSet(ei, si, { done: !s.done });
@@ -100,7 +101,7 @@ export function ActiveSessionScreen({ navigation, route }: Props) {
       .filter((e) => e.sets.length > 0);
 
     if (logs.length === 0) {
-      Alert.alert('Sin series', 'Completa al menos una serie para terminar.');
+      showAlert('Sin series', 'Completa al menos una serie para terminar.');
       return;
     }
     const result = completeSession(draft.name, logs);
@@ -108,10 +109,12 @@ export function ActiveSessionScreen({ navigation, route }: Props) {
   };
 
   const discard = () =>
-    Alert.alert('Descartar entrenamiento', 'Se perderá lo que registraste en esta sesión.', [
-      { text: 'Seguir entrenando', style: 'cancel' },
-      { text: 'Descartar', style: 'destructive', onPress: () => navigation.goBack() },
-    ]);
+    showConfirm('Descartar entrenamiento', 'Se perderá lo que registraste en esta sesión.', {
+      confirmText: 'Descartar',
+      cancelText: 'Seguir entrenando',
+      destructive: true,
+      onConfirm: () => navigation.goBack(),
+    });
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">

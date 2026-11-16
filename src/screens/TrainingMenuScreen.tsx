@@ -1,9 +1,10 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { relativeDay } from '../domain/dates';
 import type { HomeStackParams } from '../navigation/types';
 import { useForge } from '../state/ProgressProvider';
 import { colors, font, radius, spacing } from '../theme';
+import { showConfirm } from '../ui/dialog';
 
 type Props = NativeStackScreenProps<HomeStackParams, 'TrainingMenu'>;
 
@@ -26,10 +27,11 @@ export function TrainingMenuScreen({ navigation }: Props) {
   };
 
   const confirmDelete = (id: string, name: string) =>
-    Alert.alert('Eliminar rutina', `¿Eliminar "${name}"?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: () => deleteRoutine(id) },
-    ]);
+    showConfirm('Eliminar rutina', `¿Eliminar "${name}"?`, {
+      confirmText: 'Eliminar',
+      destructive: true,
+      onConfirm: () => deleteRoutine(id),
+    });
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>

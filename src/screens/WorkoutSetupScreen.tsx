@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from '../components/Button';
 import { ExercisePicker } from '../components/ExercisePicker';
 import { Stepper } from '../components/Stepper';
@@ -10,6 +10,7 @@ import type { HomeStackParams } from '../navigation/types';
 import { useForge } from '../state/ProgressProvider';
 import { colors, font, radius, spacing } from '../theme';
 import type { DraftItem } from '../types';
+import { showAlert } from '../ui/dialog';
 
 type Props = NativeStackScreenProps<HomeStackParams, 'WorkoutSetup'>;
 
@@ -35,11 +36,11 @@ export function WorkoutSetupScreen({ navigation, route }: Props) {
 
   const save = () => {
     if (!name.trim()) {
-      Alert.alert('Falta un nombre', 'Escribe un nombre para guardar la rutina.');
+      showAlert('Falta un nombre', 'Escribe un nombre para guardar la rutina.');
       return;
     }
     saveRoutine(name, items);
-    Alert.alert('Rutina guardada', `"${name.trim()}" ya está en Mis rutinas.`);
+    showAlert('Rutina guardada', `"${name.trim()}" ya está en Mis rutinas.`);
   };
 
   return (

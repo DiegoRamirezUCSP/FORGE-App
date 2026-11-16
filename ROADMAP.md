@@ -3,7 +3,7 @@
 App móvil de progreso para entrenamiento basada en XP, PRs, rachas y rangos.
 Stack: Expo (SDK 58) + React Native + TypeScript. Sin backend todavía.
 
-Última actualización: v0.2
+Última actualización: v0.2.1
 
 ## Estado actual (v0.2)
 
@@ -46,7 +46,7 @@ Si el teléfono no conecta:
 
 ### P0 · Correcciones antes de seguir
 
-- [ ] Reemplazar `Alert.alert` por un helper multiplataforma. En web `Alert.alert` no hace nada, así que no funcionan las validaciones ni las confirmaciones (descartar sesión, eliminar rutina, borrar datos).
+- [x] Helper multiplataforma para alertas y confirmaciones (`src/ui/dialog.ts`). En web usa los diálogos del navegador.
 - [ ] Ejecutar `npm run typecheck` y corregir lo que aparezca.
 - [ ] Probar el flujo completo: rutina → sesión → resumen → historial → perfil.
 - [ ] Confirmar que se eliminaron `src/data/mock.ts` y `src/screens/PlaceholderScreen.tsx`.
@@ -83,7 +83,7 @@ Si el teléfono no conecta:
 - [ ] Ícono de la app y pantalla de inicio (splash).
 - [ ] Definir tipografía propia.
 - [ ] Capturas reales de la app para la presentación.
-- [ ] Layout adaptado para pantallas anchas si se mantiene la versión web.
+- [x] Ajuste básico para web: ancho limitado a 480 px y centrado. Falta un diseño propio para escritorio si se mantiene la versión web.
 
 ## Decisiones abiertas
 
@@ -113,6 +113,7 @@ src/
   screens/              Home, Progress, RankDetails, TrainingMenu, WorkoutSetup,
                         ActiveSession, SessionSummary, History, Profile
   navigation/           tabs y pila de Inicio
+  ui/                   dialog: alertas y confirmaciones multiplataforma
 ```
 
 Las reglas de negocio están en `src/domain/xp.ts`, `src/domain/levels.ts` y `src/data/ranks.ts`.

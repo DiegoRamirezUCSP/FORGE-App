@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { StatChip } from '../components/StatChip';
@@ -8,6 +8,7 @@ import { formatNumber, formatWeight, fromDisplayWeight, parseDecimal, toDisplayW
 import { useForge } from '../state/ProgressProvider';
 import { colors, font, radius, spacing } from '../theme';
 import type { Unit } from '../types';
+import { showAlert, showConfirm } from '../ui/dialog';
 
 export function ProfileScreen() {
   const { state, setName, setUnit, setPR, resetData, loadDemo } = useForge();
@@ -31,7 +32,7 @@ export function ProfileScreen() {
     const w = parseDecimal(weight);
     const r = Math.round(parseDecimal(reps));
     if (!editing || w <= 0 || r <= 0) {
-      Alert.alert('Datos incompletos', 'Ingresa un peso y repeticiones mayores a cero.');
+      showAlert('Datos incompletos', 'Ingresa un peso y repeticiones mayores a cero.');
       return;
     }
     setPR(editing, fromDisplayWeight(w, state.unit), r);
@@ -39,10 +40,11 @@ export function ProfileScreen() {
   };
 
   const confirmReset = () =>
-    Alert.alert('Borrar todos los datos', 'Se eliminarán sesiones, PRs, XP y rutinas.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Borrar', style: 'destructive', onPress: resetData },
-    ]);
+    showConfirm('Borrar todos los datos', 'Se eliminarán sesiones, PRs, XP y rutinas.', {
+      confirmText: 'Borrar',
+      destructive: true,
+      onConfirm: resetData,
+    });
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>

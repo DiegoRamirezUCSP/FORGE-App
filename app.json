@@ -12,6 +12,8 @@
     "android": {
       "backgroundColor": "#222222"
     },
-    "plugins": []
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }
