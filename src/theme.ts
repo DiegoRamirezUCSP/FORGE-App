@@ -12,6 +12,8 @@ export const colors = {
   orange: '#FF6B00',
   amber: '#FFA800',
   yellow: '#FFDD66',
+  DANGER : '#FF6A5C'
+  
 } as const;
 
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;

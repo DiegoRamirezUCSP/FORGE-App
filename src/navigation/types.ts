@@ -1,4 +1,5 @@
 import type { DraftWorkout, SessionResult } from '../types';
+import { ExState } from '../state/draft';
 
 export type HomeStackParams = {
   Home: undefined;
@@ -6,7 +7,7 @@ export type HomeStackParams = {
   RankDetails: undefined;
   TrainingMenu: undefined;
   WorkoutSetup: { draft?: DraftWorkout } | undefined;
-  ActiveSession: { draft: DraftWorkout };
+  ActiveSession: { draft: DraftWorkout; resume?: ExState[]};
   SessionSummary: { result: SessionResult };
 };
 

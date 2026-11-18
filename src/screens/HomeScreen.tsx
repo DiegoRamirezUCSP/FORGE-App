@@ -11,12 +11,26 @@ import type { HomeStackParams } from '../navigation/types';
 import { useForge } from '../state/ProgressProvider';
 import { selectProgress } from '../state/selectors';
 import { colors, font, radius, spacing } from '../theme';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
+import { ActiveDraft, loadActiveDraft } from '../state/draft';
 
 type Props = NativeStackScreenProps<HomeStackParams, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
   const { state } = useForge();
   const p = useMemo(() => selectProgress(state), [state]);
+
+  const [draft, setDraft] = useState<ActiveDraft | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      loadActiveDraft().then((d) => alive && setDraft(d));
+      return () => {
+        alive = false;
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -65,6 +79,15 @@ export function HomeScreen({ navigation }: Props) {
           accessibilityRole="button"
           style={({ pressed }) => [styles.cta, pressed && styles.pressed]}
         >
+          {draft && (
+            <Pressable
+              onPress={() => navigation.navigate('ActiveSession', { draft: draft.workout, resume: draft.exs })}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.resume, pressed && styles.pressed]}
+            >
+              <Text style={styles.resumeText}>Continuar "{draft.workout.name}"</Text>
+            </Pressable>
+          )}
           <Text style={styles.ctaText}>Iniciar Entrenamiento</Text>
         </Pressable>
       </ScrollView>
@@ -107,9 +130,17 @@ const styles = StyleSheet.create({
   muted: { ...font.small, color: colors.textMuted },
   placement: { ...font.small, color: colors.amber, fontWeight: '700', marginTop: 2 },
   barWrap: { marginTop: spacing.md },
-  stats: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
-  cta: {
+  stats: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },resume: {
     marginTop: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.orange,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  resumeText: { ...font.body, color: colors.orange, fontWeight: '700' },
+  cta: {
+    marginTop: spacing.md,
     backgroundColor: colors.orange,
     borderRadius: radius.lg,
     paddingVertical: spacing.md + 2,

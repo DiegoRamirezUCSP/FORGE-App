@@ -9,8 +9,6 @@ interface Props {
   flex?: boolean;
 }
 
-const DANGER = '#FF6A5C';
-
 export function Button({ label, onPress, variant = 'primary', disabled = false, flex = false }: Props) {
   return (
     <Pressable
@@ -26,7 +24,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false, 
         pressed && styles.pressed,
       ]}
     >
-      <Text style={[styles.text, variant === 'danger' && { color: DANGER }]}>{label}</Text>
+      <Text style={[styles.text, variant === 'danger' && { color: colors.DANGER }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -42,7 +40,7 @@ const styles = StyleSheet.create({
   },
   primary: { backgroundColor: colors.orange },
   ghost: { borderWidth: 1, borderColor: colors.textDim },
-  danger: { borderWidth: 1, borderColor: DANGER },
+  danger: { borderWidth: 1, borderColor: colors.DANGER },
   text: { fontSize: 17, fontWeight: '800', color: colors.text },
   disabled: { opacity: 0.4 },
   pressed: { opacity: 0.85 },
