@@ -100,6 +100,8 @@ export interface AppState {
   /** Más reciente primero. */
   xpEvents: XpEvent[];
   routines: Routine[];
+  /** true cuando la persona terminó el registro inicial (nombre, unidades y PRs). */
+  onboarded: boolean;
 }
 
 export interface SessionResult {
@@ -122,4 +124,19 @@ export interface SessionResult {
   rankAfter: RankId;
   totalXpAfter: number;
   sessionNumber: number;
+}
+
+/** Resumen público de una persona, visible solo para administradoras. */
+export interface AdminUser {
+  id: string;
+  name: string;
+  unit: Unit;
+  totalXp: number;
+  streak: number;
+  bestStreak: number;
+  lastTrainingDay: string | null;
+  onboarded: boolean;
+  createdAt: string;
+  sessionsCount: number;
+  prsCount: number;
 }

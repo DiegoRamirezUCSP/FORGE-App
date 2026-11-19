@@ -1,17 +1,25 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../auth/AuthProvider';
+import { useIsAdmin } from '../auth/useIsAdmin';
 import { Button } from '../components/Button';
 import { StatChip } from '../components/StatChip';
 import { BASE_LIFTS, getExercise } from '../data/exercises';
 import { formatNumber, formatWeight, fromDisplayWeight, parseDecimal, toDisplayWeight } from '../format';
+import type { ProfileStackParams } from '../navigation/types';
 import { useForge } from '../state/ProgressProvider';
 import { colors, font, radius, spacing } from '../theme';
 import type { Unit } from '../types';
 import { showAlert, showConfirm } from '../ui/dialog';
 
-export function ProfileScreen() {
-  const { state, setName, setUnit, setPR, resetData, loadDemo } = useForge();
+type Props = NativeStackScreenProps<ProfileStackParams, 'Profile'>;
+
+export function ProfileScreen({ navigation }: Props) {
+  const isAdmin = useIsAdmin();
+  const { state, setName, setUnit, setPR, resetData, pendingSync } = useForge();
+  const { user, signOut } = useAuth();
   const [nameInput, setNameInput] = useState(state.name);
   const [editing, setEditing] = useState<string | null>(null);
   const [weight, setWeight] = useState('');
@@ -40,11 +48,20 @@ export function ProfileScreen() {
   };
 
   const confirmReset = () =>
-    showConfirm('Borrar todos los datos', 'Se eliminarán sesiones, PRs, XP y rutinas.', {
+    showConfirm('Borrar mis datos', 'Se eliminarán tus sesiones, PRs, XP y rutinas de tu cuenta.', {
       confirmText: 'Borrar',
       destructive: true,
       onConfirm: resetData,
     });
+
+  const confirmSignOut = () =>
+    showConfirm(
+      'Cerrar sesión',
+      pendingSync
+        ? 'Tienes cambios sin sincronizar. Conéctate a internet antes de cerrar sesión o podrías perderlos.'
+        : '¿Cerrar sesión en este dispositivo?',
+      { confirmText: 'Cerrar sesión', destructive: pendingSync, onConfirm: () => void signOut() },
+    );
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -108,9 +125,16 @@ export function ProfileScreen() {
           })}
         </View>
 
-        <Text style={styles.section}>Datos de prueba</Text>
-        <Button label="Cargar datos de ejemplo" variant="ghost" onPress={loadDemo} />
-        <Button label="Borrar todos los datos" variant="danger" onPress={confirmReset} />
+        <Text style={styles.section}>Cuenta</Text>
+        <Text style={styles.account}>{user?.email ?? ''}</Text>
+        <Text style={styles.sync}>
+          {pendingSync ? 'Hay cambios pendientes de sincronizar.' : 'Tus datos están sincronizados.'}
+        </Text>
+        {isAdmin && (
+          <Button label="Panel de administración" onPress={() => navigation.navigate('AdminUsers')} />
+        )}
+        <Button label="Cerrar sesión" variant="ghost" onPress={confirmSignOut} />
+        <Button label="Borrar mis datos" variant="danger" onPress={confirmReset} />
       </ScrollView>
 
       <Modal visible={editing !== null} transparent animationType="fade" onRequestClose={() => setEditing(null)}>
@@ -156,6 +180,8 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl },
   title: { ...font.title, color: colors.text, marginBottom: spacing.sm },
+  account: { ...font.body, color: colors.text },
+  sync: { ...font.small, color: colors.textMuted },
   identity: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   avatar: {
     width: 56,

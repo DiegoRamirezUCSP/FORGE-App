@@ -14,6 +14,7 @@ export function emptyState(): AppState {
     sessions: [],
     xpEvents: [],
     routines: [],
+    onboarded: false,
   };
 }
 
@@ -68,6 +69,7 @@ export function createDemoState(now: Date = new Date()): AppState {
 
   return {
     name: 'Diego',
+    onboarded: true,
     unit: 'kg',
     totalXp: 2900,
     streak: 13,
