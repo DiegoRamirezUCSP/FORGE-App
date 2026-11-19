@@ -1,9 +1,9 @@
 # Forge · Roadmap y pendientes
 
 App móvil de progreso para entrenamiento basada en XP, PRs, rachas y rangos.
-Stack: Expo (SDK 58) + React Native + TypeScript. Sin backend todavía.
+Stack: Expo (SDK 58) + React Native + TypeScript + Supabase (Auth y Postgres).
 
-Última actualización: v0.2.1
+Última actualización: v0.3
 
 ## Estado actual (v0.2)
 
@@ -20,6 +20,11 @@ Hecho:
 - [x] Historial de sesiones.
 - [x] Persistencia local con AsyncStorage.
 - [x] Lógica de XP, nivel, racha y rango aislada en `src/domain/`.
+- [x] Cuentas: registro e inicio de sesión con correo y contraseña, y con Google.
+- [x] Registro inicial: nombre, unidades y PRs iniciales.
+- [x] Base de datos en Supabase con Row Level Security (`supabase/schema.sql`).
+- [x] Sincronización con cola de escrituras y caché local.
+- [x] Cuenta administradora de solo lectura y panel de usuarios (`supabase/admin.sql`, `docs/ADMIN.md`).
 
 Sin verificar:
 
@@ -31,7 +36,8 @@ Sin verificar:
 ```bash
 npm install
 npx expo install --fix
-npx expo install @react-native-async-storage/async-storage
+npx expo install @react-native-async-storage/async-storage @supabase/supabase-js react-native-url-polyfill expo-web-browser expo-linking
+# crea .env a partir de .env.example (ver docs/SUPABASE_SETUP.md)
 npx expo start -c
 ```
 
@@ -53,7 +59,7 @@ Si el teléfono no conecta:
 
 ### P1 · Producto
 
-- [ ] Onboarding en la primera apertura: registrar PRs iniciales de press banca, sentadilla y peso muerto (hoy solo se editan desde Perfil).
+- [x] Onboarding en la primera apertura: registrar PRs iniciales de press banca, sentadilla y peso muerto.
 - [ ] Animación breve al subir de rango.
 - [ ] Detalle de una sesión pasada desde el Historial.
 - [ ] Editar o eliminar una sesión registrada (recalcular XP, nivel y racha).
@@ -64,11 +70,23 @@ Si el teléfono no conecta:
 
 ### P1 · Backend (Supabase)
 
-- [ ] Crear proyecto Supabase y definir esquema: usuarios, ejercicios, sesiones, series, PRs, eventos de XP, rutinas.
-- [ ] Autenticación (Auth) y pantalla de acceso.
-- [ ] Row Level Security: cada usuario solo ve sus datos.
-- [ ] Migrar la persistencia local a Postgres, manteniendo AsyncStorage como caché sin conexión.
-- [ ] Decidir dónde vive el cálculo de progreso (ver decisiones abiertas).
+- [x] Esquema de Supabase: perfiles, sesiones, PRs, eventos de XP y rutinas.
+- [x] Autenticación (Auth) y pantalla de acceso.
+- [x] Row Level Security: cada usuario solo ve sus datos.
+- [x] Persistencia en Postgres, con AsyncStorage como caché sin conexión.
+- [ ] Crear el proyecto Supabase y configurar Google siguiendo `docs/SUPABASE_SETUP.md`.
+- [ ] Probar el flujo completo con cuentas reales: registro, onboarding, sesión, cierre de sesión y reingreso.
+- [ ] Ejecutar `supabase/admin.sql` y crear la cuenta administradora y los usuarios de prueba (`scripts/seed-demo-users.mjs`).
+- [ ] Informar en la política de privacidad que el equipo administrador puede ver datos de entrenamiento antes de tener usuarios reales.
+- [ ] Panel de administración: búsqueda, filtros y exportación.
+- [ ] Recuperar contraseña.
+- [ ] Confirmación de correo con enlace que vuelva a la app (deep link).
+- [ ] Borrar la caché local al cerrar sesión (equipos compartidos).
+- [ ] Revisar los requisitos de las tiendas para el inicio de sesión con terceros antes de publicar.
+- [ ] Importar los datos locales de la v0.2, si alguien los necesita.
+- [ ] Normalizar las series en una tabla propia si hacen falta estadísticas por ejercicio.
+- [ ] Cargar el historial completo (hoy se cargan las últimas 200 sesiones).
+- [x] Cálculo de progreso en la app (Opción A). Pasarlo a una Edge Function si se necesita evitar la manipulación.
 
 ### P2 · Calidad
 
@@ -106,9 +124,11 @@ src/
   theme.ts              colores, espaciado y tipografía
   types.ts              tipos del dominio
   format.ts             números y conversión kg/lb
+  auth/                 AuthProvider: correo, Google y sesión
+  lib/                  cliente de Supabase
   domain/               reglas puras: xp, levels, session, dates
-  data/                 ranks, exercises, demo
-  state/                ProgressProvider (contexto + AsyncStorage) y selectors
+  data/                 ranks, exercises, demo, remote (Supabase)
+  state/                ProgressProvider (estado, caché y cola de sincronización) y selectors
   components/           RankBadge, XpBar, StatChip, XpEventRow, Button, Stepper, ExercisePicker
   screens/              Home, Progress, RankDetails, TrainingMenu, WorkoutSetup,
                         ActiveSession, SessionSummary, History, Profile
@@ -122,4 +142,4 @@ Las reglas de negocio están en `src/domain/xp.ts`, `src/domain/levels.ts` y `sr
 
 - Los pesos se guardan siempre en kg; la unidad elegida solo afecta lo que se muestra.
 - Los ids de ejercicio (`src/data/exercises.ts`) deben mantenerse estables: el XP relativo y los PRs dependen de ellos.
-- La app arranca con datos de ejemplo la primera vez. En Perfil se pueden borrar o volver a cargar.
+- Cada persona ve solo sus datos (Row Level Security). Los cambios se aplican primero en el teléfono y se sincronizan con Supabase; sin conexión quedan en cola.

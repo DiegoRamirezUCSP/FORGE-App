@@ -3,6 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DarkTheme, NavigationContainer, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActiveSessionScreen } from '../screens/ActiveSessionScreen';
+import { AdminUserDetailScreen } from '../screens/AdminUserDetailScreen';
+import { AdminUsersScreen } from '../screens/AdminUsersScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -12,10 +14,11 @@ import { SessionSummaryScreen } from '../screens/SessionSummaryScreen';
 import { TrainingMenuScreen } from '../screens/TrainingMenuScreen';
 import { WorkoutSetupScreen } from '../screens/WorkoutSetupScreen';
 import { colors } from '../theme';
-import type { HomeStackParams, TabParams } from './types';
+import type { HomeStackParams, ProfileStackParams, TabParams } from './types';
 
 const Tab = createBottomTabNavigator<TabParams>();
 const HomeStack = createNativeStackNavigator<HomeStackParams>();
+const ProfileStack = createNativeStackNavigator<ProfileStackParams>();
 
 const navTheme: Theme = {
   ...DarkTheme,
@@ -59,6 +62,24 @@ function HomeStackNavigator() {
   );
 }
 
+// Perfil es una pila para poder abrir el panel de administración.
+function ProfileStackNavigator() {
+  return (
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.text,
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
+      }}
+    >
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+      <ProfileStack.Screen name="AdminUsers" component={AdminUsersScreen} options={{ title: 'Usuarios' }} />
+      <ProfileStack.Screen name="AdminUserDetail" component={AdminUserDetailScreen} options={{ title: 'Detalle' }} />
+    </ProfileStack.Navigator>
+  );
+}
+
 export function RootNavigator() {
   return (
     <NavigationContainer theme={navTheme}>
@@ -88,7 +109,7 @@ export function RootNavigator() {
         />
         <Tab.Screen
           name="ProfileTab"
-          component={ProfileScreen}
+          component={ProfileStackNavigator}
           options={{
             title: 'Perfil',
             tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
